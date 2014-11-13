@@ -1,0 +1,97 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+	http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
+ 	
+ 	<bean class="com.pubmatic.util.SpringApplicationContext"></bean>
+ 	
+	<bean id="creativeWorkflow" class="com.pubmatic.workflow.CreativeWorkflow">
+        <property name="name" value="creativeWorkflow" />
+	
+		<property name="creativeActions">
+			<map>	
+			<entry key="phantomAction">			
+				<bean class="com.pubmatic.action.PhantomAction">
+					<property name="name" value="phantomAction" />
+					<property name="runType" value="serial" />	
+					<property name="phantomManager" ref="phantomServerManager"/>				
+				</bean>	
+				</entry>
+				<entry key="netLogAction">			
+				<bean class="com.pubmatic.action.NetLogAction">
+					<property name="name" value="NetLogAction" />
+					<property name="runType" value="serial" />					
+				</bean>
+				</entry>
+				<entry key="audioDiagnosticAction">	
+				<bean class="com.pubmatic.action.AudioDiagnosticAction">
+					<property name="name" value="AudioDiagnosticAction" />
+					<property name="runType" value="serial" />					
+				</bean>
+				</entry>
+				<entry key="flumeDispatchAction">			
+				<bean class="com.pubmatic.action.FlumeDispatchAction">
+					<property name="name" value="flumeDispatchAction" />
+					<property name="runType" value="serial" />	
+					<property name="dataSink" ref="netcatSink"/>				
+				</bean>	
+				</entry>
+			</map>
+		</property>
+ 
+		 
+		<!-- java.util.Properties -->
+		<property name="config">
+			<props>
+				<prop key="admin.contact">admin@testpubmatic.com</prop>
+				<prop key="support.contact">support@testpubmatic.com</prop>
+				<prop key="run.interval">60</prop>
+			</props>
+		</property>
+ 
+	</bean>
+	
+	<bean id="phantomServerManager" class="com.pubmatic.phantom.PhantomServerManager">
+        <property name="exec" value="/opt/phantomjs-1.9.7-linux-x86_64/bin/phantomjs" />
+        <property name="script" value="/home/pubmatic/Desktop/phantomServerTest.js" />       
+        <property name="connectTimeout" value="500" />
+        <property name="readTimeout" value="6000" />
+        <property name="maxTimeout" value="6500" />
+        <!-- load balencer details -->
+        <property name="loadbalacerHost" value="localhost" />
+        <property name="loadbalacerPort" value="8081" />
+        <!-- java.util.Set -->
+		<property name="ports">
+			<set>
+				<value>8001</value>
+				<value>8002</value>
+				<value>8003</value>
+				<value>8004</value>
+			</set>
+		</property>	
+	</bean>
+ 
+	<!-- <bean id="PersonBean" class="com.mkyong.common.Person">
+		<property name="name" value="mkyong1" />
+		<property name="address" value="address 1" />
+		<property name="age" value="28" />
+	</bean> -->
+ 
+   <bean id="dataSource" 
+         class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+ 
+		<property name="driverClassName" value="com.mysql.jdbc.Driver" />
+		<property name="url" value="jdbc:mysql://localhost:3306/mkyongjava" />
+		<property name="username" value="root" />
+		<property name="password" value="password" />
+	</bean>
+	
+	<bean id="creativeDAO" class="com.pubmatic.dao.CreativeDAO">
+		<property name="dataSource" ref="dataSource" />
+	</bean>
+	
+	<bean id="netcatSink" class="com.pubmatic.sink.NetCatSink">
+		<property name="host" value="localhost" />
+		<property name="port" value="8788" />
+	</bean>
+</beans>
